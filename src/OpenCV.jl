@@ -26,32 +26,34 @@ swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
 # Check Julia version before continuing (also checked later in Cxx)
 (VERSION >= v"0.6-") ? nothing :
      throw(ErrorException("Julia $VERSION does not support C++ FFI"))
-
-# Load Cxx
+    
+using Pkg
 using Cxx
+using Base
+using Libdl
 
 # Load config variables for loading OpenCV shared libraries
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_libs.jl"))
+#import OpenCV
+
+Base.include(@__MODULE__, "./OpenCV_libs.jl")
 opencv_libraries = getFullLibNames();
 
 # Autosearch for OpenCV installations using pkg-config
-(so,si,pr) = readandwrite(`pkg-config --libs opencv`)
-output = readstring(so)
-close(so)
+output = read(`pkg-config --libs opencv4`, String)
 
 # Check lib installation path
-@static if is_apple()
+@static if Sys.isapple()
   failed_to_get_path = match(Regex(chop(cvlibdir)), output) == nothing
 end
 
-@static if is_linux()
+@static if Sys.islinux()
   failed_to_get_path = match(Regex("libopencv|lopencv"), output) == nothing
 end
 
 # Check if all libraries specified in config are indeed installed
 missing_libs = false
 for i in libNames
-    if !contains(output, i)
+    if !occursin(output, i)
         missingmissing_libs = true
         println("$(i) is not found in pkg-config")
     end
@@ -59,20 +61,24 @@ end
 
 # Load pre-built DYLD libraries (OSX ONLY), else throw an ErrorException
 if failed_to_get_path || missing_libs
-    cvlibdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
-    cvheaderdir = is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
+    println("Failed to get path")
+    cvlibdir = Sys.is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
+    #cvheaderdir = Sys.is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
 
+cvheaderdir = "/usr/include/opencv4"
 addHeaderDir(cvheaderdir, kind = C_System)
 
 # Load OpenCV shared libraries (default file extension is .dylib)
 # TO DO: ensure compatible path/extension for Windows OS
 for i in opencv_libraries
-    if is_linux()
+    if Sys.islinux()
          i = swapext(i[1:end-6], ".so")
     end
     # Must link symbols accross libraries with RTLD_GLOBAL
-    Libdl.dlopen(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)
+    println("Loading $(cvlibdir) --- $i")
+    #Libdl.dlopen(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)
+    Libdl.dlopen(i, Libdl.RTLD_GLOBAL)
 end
 
 # Now include C++ header files
@@ -127,21 +133,21 @@ cxx"""
 
 # Load Qt framework
 # BUG: see deps/Qt_support.jl, so currently disabled
-# include(joinpath(Pkg.dir("OpenCV"), "./deps/Qt_support.jl"))
+# Base.include(@__MODULE__, "./deps/Qt_support.jl"))
 
 # Load header constants and typedefs
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_hpp.jl"))
+Base.include(@__MODULE__, "OpenCV_hpp.jl")
 
 # Load OpenCV bindings
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_modules.jl"))
+Base.include(@__MODULE__, "OpenCV_modules.jl")
 
 # Load custom utility functions
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_util.jl"))
+Base.include(@__MODULE__, "OpenCV_util.jl")
 
 # Load Videoplayer
-include(joinpath(Pkg.dir("OpenCV"), "./src/Videoprocessor.jl"))
+Base.include(@__MODULE__, "Videoprocessor.jl")
 
 # Load demos -- currently Cxx versions
 function run_tests()
-    include(joinpath(Pkg.dir("OpenCV"), "./test/cxx/demos.jl"))
+    Base.include(@__MODULE__, "../test/cxx/demos.jl")
 end

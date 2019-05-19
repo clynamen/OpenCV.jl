@@ -88,7 +88,7 @@ end
 clear(cppvec) = @cxx cppvec->clear()
 
 # Converting julia Array{Int64,1} to an std::vector
-function tostdvec{T}(jl_vector::Array{T,1})
+function tostdvec(jl_vector::Array{T,1}) where {T}
     # C++ must deduce type from template functions
     vec = stdvec(0,jl_vector[1])
 
@@ -208,7 +208,7 @@ function im2tile(imgArray, windowName::String, flag=WINDOW_AUTOSIZE)
             (cvtypeval(imgArray[i]) != cvtypeval(imgArray[i-1]) ||
              rows(imgArray[i]) != rows(imgArray[i-1]) ||
              cols(imgArray[i]) != cols(imgArray[i-1])) ?
-          throw(ArgumentError("Images must have same dimensions and format")): nothing
+          throw(ArgumentError("Images must have same dimensions and format")) : nothing
         end
         push(canvas, imgArray[i])
     end

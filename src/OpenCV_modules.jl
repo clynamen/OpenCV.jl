@@ -65,36 +65,36 @@
 ####################################################################################################
 
 # Core
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_core.jl"))
+Base.include(@__MODULE__, "./OpenCV_core.jl")
 # Custom module for Mat arrays (e.g., get and set methods)
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_Mat.jl"))
+Base.include(@__MODULE__, "./OpenCV_Mat.jl")
 
 # Image processing
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_imgproc.jl"))
+Base.include(@__MODULE__, "./OpenCV_imgproc.jl")
 
 # Image file reading and writing
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_imgcodecs.jl"))
+Base.include(@__MODULE__, "./OpenCV_imgcodecs.jl")
 
 # Reading and Writing Video
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_videoio.jl"))
+Base.include(@__MODULE__, "./OpenCV_videoio.jl")
 
 # High-level GUI and Media I/O
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_highgui.jl"))
+Base.include(@__MODULE__, "./OpenCV_highgui.jl")
 
 # Video: Motion Analysis and Object Tracking
 # Enable only if the user provides the path for opencv-contrib-master in src/OpenCV.jl lines 101-105
 # Unfortunately, some of the functions in opencv-contrib-master are necessary to support the video module in OpenCV 3.0.0
 
-# include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_video.jl"))
+# Base.include(@__MODULE__, "./OpenCV_video.jl"))
 
 # OpenCL support (ocl)
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ocl.jl"))
+Base.include(@__MODULE__, "./OpenCV_ocl.jl")
 
 # OpenGL support (ogl)
-# include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_opengl.jl"))
+# Base.include(@__MODULE__, "./OpenCV_opengl.jl"))
 
 # Support for conversion and manipulation of images from external packages
-include(joinpath(Pkg.dir("OpenCV"), "./src/OpenCV_ImagesSupport.jl"))
+Base.include(@__MODULE__, "./OpenCV_ImagesSupport.jl")
 
 
 

@@ -1032,7 +1032,7 @@ cubeRoot(val::Float64) =  @cxx cv::cubeRoot(val)
 fastMalloc(bufSize::UInt64) = @cxx cv::fastMalloc(bufSize)  # returns void*
 
 # fastFree
-fastFree(ptr::Ptr{Void}) = @cxx cv::fastFree(ptr)
+fastFree(ptr::Ptr{Nothing}) = @cxx cv::fastFree(ptr)
 # ptr – Pointer to the allocated buffer
 
 # format strings
