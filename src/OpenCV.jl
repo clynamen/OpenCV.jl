@@ -19,6 +19,7 @@
 # http://docs.opencv.org/master/index.html
 #
 #################################################################################################
+module OpenCV
 
 # Convenient swap file extension function
 swapext(f, new_ext) = "$(splitext(f)[1])$new_ext"
@@ -33,7 +34,7 @@ using Base
 using Libdl
 
 # Load config variables for loading OpenCV shared libraries
-#import OpenCV
+import OpenCV
 
 Base.include(@__MODULE__, "./OpenCV_libs.jl")
 opencv_libraries = getFullLibNames();
@@ -43,27 +44,27 @@ output = read(`pkg-config --libs opencv4`, String)
 
 # Check lib installation path
 @static if Sys.isapple()
-  failed_to_get_path = match(Regex(chop(cvlibdir)), output) == nothing
+ failed_to_get_path = match(Regex(chop(cvlibdir)), output) == nothing
 end
 
 @static if Sys.islinux()
-  failed_to_get_path = match(Regex("libopencv|lopencv"), output) == nothing
+ failed_to_get_path = match(Regex("libopencv|lopencv"), output) == nothing
 end
 
 # Check if all libraries specified in config are indeed installed
 missing_libs = false
 for i in libNames
-    if !occursin(output, i)
-        missingmissing_libs = true
-        println("$(i) is not found in pkg-config")
-    end
+   if !occursin(output, i)
+       missingmissing_libs = true
+       println("$(i) is not found in pkg-config")
+   end
 end
 
 # Load pre-built DYLD libraries (OSX ONLY), else throw an ErrorException
 if failed_to_get_path || missing_libs
-    println("Failed to get path")
-    cvlibdir = Sys.is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
-    #cvheaderdir = Sys.is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
+   println("Failed to get path")
+   cvlibdir = Sys.is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/lib/") : throw(ErrorException("No pre-installed libraries. Set path manually or install OpenCV."))
+   #cvheaderdir = Sys.is_apple() ? joinpath(Pkg.dir("OpenCV"), "./deps/usr/include/") : throw(ErrorException("No pre-installed headers. Set path manually or install OpenCV."))
 end
 
 cvheaderdir = "/usr/include/opencv4"
@@ -72,31 +73,32 @@ addHeaderDir(cvheaderdir, kind = C_System)
 # Load OpenCV shared libraries (default file extension is .dylib)
 # TO DO: ensure compatible path/extension for Windows OS
 for i in opencv_libraries
-    if Sys.islinux()
-         i = swapext(i[1:end-6], ".so")
-    end
-    # Must link symbols accross libraries with RTLD_GLOBAL
-    println("Loading $(cvlibdir) --- $i")
-    #Libdl.dlopen(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)
-    Libdl.dlopen(i, Libdl.RTLD_GLOBAL)
+   if Sys.islinux()
+        i = swapext(i[1:end-6], ".so")
+   end
+   # Must link symbols accross libraries with RTLD_GLOBAL
+   println("Loading $(cvlibdir) --- $i")
+   #Libdl.dlopen(joinpath(cvlibdir,i), Libdl.RTLD_GLOBAL)
+   Libdl.dlopen(i, Libdl.RTLD_GLOBAL)
 end
 
 # Now include C++ header files
 addHeaderDir(joinpath(cvheaderdir,"opencv2"), kind = C_System )
 addHeaderDir(joinpath(cvheaderdir,"opencv2/core"), kind = C_System )
 cxxinclude(joinpath(cvheaderdir,"opencv2/opencv.hpp"))
+cxxinclude(joinpath(cvheaderdir,"opencv2/core.hpp"))
     # => opencv.hpp calls all the main headers
-    #include "opencv2/core.hpp"
-    #include "opencv2/imgproc.hpp"
-    #include "opencv2/photo.hpp"
-    #include "opencv2/video.hpp"
-    #include "opencv2/features2d.hpp"
-    #include "opencv2/objdetect.hpp"
-    #include "opencv2/calib3d.hpp"
-    #include "opencv2/imgcodecs.hpp"
-    #include "opencv2/videoio.hpp"
-    #include "opencv2/highgui.hpp"
-    #include "opencv2/ml.hpp"
+    # include "opencv2/core.hpp"
+    # include "opencv2/imgproc.hpp"
+    # include "opencv2/photo.hpp"
+    # include "opencv2/video.hpp"
+    # include "opencv2/features2d.hpp"
+    # include "opencv2/objdetect.hpp"
+    # include "opencv2/calib3d.hpp"
+    # include "opencv2/imgcodecs.hpp"
+    # include "opencv2/videoio.hpp"
+    # include "opencv2/highgui.hpp"
+    # include "opencv2/ml.hpp"
 
 cxxinclude(joinpath(cvheaderdir,"opencv2/core/opengl.hpp"))            # enable OpenGL
 cxxinclude(joinpath(cvheaderdir,"opencv2/core/ocl.hpp"))               # enable OpenCL
@@ -145,9 +147,12 @@ Base.include(@__MODULE__, "OpenCV_modules.jl")
 Base.include(@__MODULE__, "OpenCV_util.jl")
 
 # Load Videoplayer
-Base.include(@__MODULE__, "Videoprocessor.jl")
+# Base.include(@__MODULE__, "Videoprocessor.jl")
 
 # Load demos -- currently Cxx versions
-function run_tests()
-    Base.include(@__MODULE__, "../test/cxx/demos.jl")
+# function run_tests()
+#     Base.include(@__MODULE__, "../test/cxx/demos.jl")
+# end
+
+
 end

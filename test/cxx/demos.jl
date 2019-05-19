@@ -4,15 +4,16 @@
 export run_demo
 
 demos = [ "CreateImage",
-          "ImageConversion",
-          "Thresholding",
-          "LiveVideo",
-          "setVideoProperties",
-          "LiveVideoWithTrackbars",
-          "displayHistogram",
-          "Drawing",
-          "im2dots",
-          "ObjectTracking"]
+        #   "ImageConversion",
+        #   "Thresholding",
+        #   "LiveVideo",
+        #   "setVideoProperties",
+        #   "LiveVideoWithTrackbars",
+        #   "displayHistogram",
+        #   "Drawing",
+        #   "im2dots",
+        #   "ObjectTracking"
+          ]
 
 println("\nSelect a demo from the following options: \n")
 

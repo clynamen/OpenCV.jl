@@ -588,3 +588,10 @@ Feel free to send questions, comments or file issues here.  Extending the docume
 
 - Import errors
      - flann.hpp (included in opencv2/opencv.hpp) throws an error in the Julia REPL due to `typeid` declarations which are not compatible with the `rtti` flag
+
+
+Build Cxx.jl with 
+
+```
+export JULIA_CXX_RTTI=1
+```
